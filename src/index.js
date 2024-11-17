@@ -55,16 +55,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Shuffle the quiz questions
   quiz.shuffleQuestions();
 
+  /************  TIMER  ************/
+
+  let timer = setInterval(updateTimer, 1000);
+  let secondsLeft = quizDuration;
+
   /************  SHOW INITIAL CONTENT  ************/
 
-  UpdateTimer();
+  updateTimer();
 
   // Show first question
   showQuestion();
-
-  /************  TIMER  ************/
-
-  let timer;
 
   /************  EVENT LISTENERS  ************/
 
@@ -174,6 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 3. Update the result container (div#result) inner text to show the number of correct answers out of total questions
     resultContainer.innerText = `You scored ${quiz.correctAnswers} out of ${quiz.questions.length} correct answers!`;
+
+    clearInterval(timer);
   }
 
   function restartButtonHandler() {
@@ -183,18 +186,28 @@ document.addEventListener("DOMContentLoaded", () => {
     quiz.currentQuestionIndex = 0;
     quiz.correctAnswers = 0;
     quiz.shuffleQuestions();
+    secondsLeft = quizDuration;
+    updateTimer();
+    timer = setInterval(updateTimer, 1000);
     showQuestion();
   }
 
-  function UpdateTimer() {
+  function updateTimer() {
     // Convert the time remaining in seconds to minutes and seconds, and pad the numbers with zeros if needed
-    const minutes = Math.floor(quiz.timeRemaining / 60)
+
+    const minutes = Math.floor(secondsLeft / 60)
       .toString()
       .padStart(2, "0");
-    const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
+    const seconds = (secondsLeft % 60).toString().padStart(2, "0");
 
     // Display the time remaining in the time remaining container
     const timeRemainingContainer = document.getElementById("timeRemaining");
     timeRemainingContainer.innerText = `${minutes}:${seconds}`;
+
+    //show results if no time left
+    if (secondsLeft <= 0) showResults();
+
+    //subtract time
+    secondsLeft -= 1;
   }
 });
